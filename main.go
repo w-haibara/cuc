@@ -41,10 +41,10 @@ func ConfigDir() string {
 }
 
 func ReadAPIKey(configDir string) string {
-	type ApiKey struct {
+	type tml struct {
 		Key string
 	}
-	t := new(ApiKey)
+	t := new(tml)
 	if _, err := toml.DecodeFile(filepath.Join(configDir, "key.toml"), t); err != nil {
 		panic(err.Error())
 	}
