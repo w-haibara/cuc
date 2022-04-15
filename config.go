@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"github.com/k0kubun/pp"
 )
 
 func ConfigDir() string {
@@ -52,7 +50,5 @@ func ReadConfig(configDir string) Config {
 	if _, err := toml.DecodeFile(filepath.Join(configDir, "config.toml"), config); err != nil {
 		panic(err.Error())
 	}
-	pp.Println(config)
-	fmt.Println()
 	return *config
 }

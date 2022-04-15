@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -12,6 +11,7 @@ import (
 
 type Client struct {
 	*clickup.Client
+	User   *clickup.User
 	Config Config
 }
 
@@ -26,10 +26,8 @@ func NewClient(ctx context.Context) Client {
 		panic(err.Error())
 	}
 
-	fmt.Println("User:", user.Username)
-
 	config := ReadConfig(configDir)
-	return Client{client, config}
+	return Client{client, user, config}
 }
 
 func (c Client) FetchTeamID(ctx context.Context) string {
@@ -41,7 +39,6 @@ func (c Client) FetchTeamID(ctx context.Context) string {
 	id := ""
 	for _, team := range teams {
 		if team.Name == c.Config.Team {
-			fmt.Println("Team:", team.Name)
 			id = team.ID
 			break
 		}
@@ -63,7 +60,6 @@ func (c Client) FetchSpaceID(ctx context.Context, teamID string) string {
 	id := ""
 	for _, space := range spaces {
 		if space.Name == c.Config.Space {
-			fmt.Println("Space:", space.Name)
 			id = space.ID
 			break
 		}
@@ -85,7 +81,6 @@ func (c Client) FetchFolderID(ctx context.Context, spaceID string) string {
 	id := ""
 	for _, folder := range folders {
 		if folder.Name == c.Config.Splint.Folder {
-			fmt.Println("Folder:", folder.Name)
 			id = folder.ID
 		}
 	}
@@ -117,19 +112,16 @@ func isCurrentSplint(listName string, layout string, date time.Time) bool {
 
 	arr := strings.SplitN(listName, "(", 2)
 	if len(arr) != 2 {
-		log.Println("isCurrentSplint 1", listName)
 		return false
 	}
 	str := strings.TrimSuffix(arr[1], ")")
 	arr2 := strings.SplitN(str, " - ", 2)
 	if len(arr2) != 2 {
-		log.Println("isCurrentSplint 2", str)
 		return false
 	}
 
 	t1, err := time.ParseInLocation(layout, strings.TrimSpace(arr2[0]), date.Location())
 	if err != nil {
-		log.Println("isCurrentSplint 3", err.Error())
 		return false
 	}
 	if t1.Year() == 0 {
@@ -138,7 +130,6 @@ func isCurrentSplint(listName string, layout string, date time.Time) bool {
 
 	t2, err := time.ParseInLocation(layout, strings.TrimSpace(arr2[1]), date.Location())
 	if err != nil {
-		log.Println("isCurrentSplint 4", err.Error())
 		return false
 	}
 	if t2.Year() == 0 {
