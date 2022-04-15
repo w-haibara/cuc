@@ -37,10 +37,14 @@ func ReadAPIKey(configDir string) string {
 }
 
 type Config struct {
-	Team         string
-	Space        string
-	Folder       string
-	SplintFormat string `toml:"splint_format"`
+	Team   string
+	Space  string
+	Splint SplintConfig
+}
+
+type SplintConfig struct {
+	Folder     string
+	TimeFormat string `toml:"time_format"`
 }
 
 func ReadConfig(configDir string) Config {

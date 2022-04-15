@@ -84,14 +84,14 @@ func (c Client) FetchFolderID(ctx context.Context, spaceID string) string {
 
 	id := ""
 	for _, folder := range folders {
-		if folder.Name == c.Config.Folder {
+		if folder.Name == c.Config.Splint.Folder {
 			fmt.Println("Folder:", folder.Name)
 			id = folder.ID
 		}
 	}
 
 	if id == "" {
-		panic(fmt.Sprintln("folder not found:", c.Config.Folder))
+		panic(fmt.Sprintln("folder not found:", c.Config.Splint.Folder))
 	}
 
 	return id
@@ -104,7 +104,7 @@ func (c Client) FetchCurrentSplintListID(ctx context.Context, folderID string) c
 	}
 
 	for i := len(lists) - 1; i >= 0; i-- {
-		if isCurrentSplint(lists[i].Name, c.Config.SplintFormat, time.Now()) {
+		if isCurrentSplint(lists[i].Name, c.Config.Splint.TimeFormat, time.Now()) {
 			return lists[i]
 		}
 	}
