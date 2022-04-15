@@ -17,93 +17,149 @@ import (
 func main() {
 	ctx := context.Background()
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		panic(err.Error())
-	}
-
-	dir := filepath.Join(home, ".config", "cuc")
-	if _, err := os.Stat(dir); err != nil {
-		if err := os.Mkdir(dir, os.ModePerm); err != nil {
+	//
+	configDir := func() string {
+		home, err := os.UserHomeDir()
+		if err != nil {
 			panic(err.Error())
 		}
+
+		dir := filepath.Join(home, ".config", "cuc")
+		if _, err := os.Stat(dir); err != nil {
+			if err := os.Mkdir(dir, os.ModePerm); err != nil {
+				panic(err.Error())
+			}
+		}
+
+		return dir
 	}
 
-	type ApiKey struct {
-		Key string
-	}
-	t := new(ApiKey)
-	if _, err := toml.DecodeFile(filepath.Join(dir, "key.toml"), t); err != nil {
-		panic(err.Error())
-	}
+	//
+	key := func(configDir string) string {
+		type ApiKey struct {
+			Key string
+		}
+		t := new(ApiKey)
+		if _, err := toml.DecodeFile(filepath.Join(configDir, "key.toml"), t); err != nil {
+			panic(err.Error())
+		}
+		return t.Key
+	}(configDir())
 
+	//
 	type Config struct {
 		Team         string
 		Space        string
 		Folder       string
 		SplintFormat string `toml:"splint_format"`
 	}
-	config := new(Config)
-	if _, err := toml.DecodeFile(filepath.Join(dir, "config.toml"), config); err != nil {
-		panic(err.Error())
+	config := func(configDir string) Config {
+		config := new(Config)
+		if _, err := toml.DecodeFile(filepath.Join(configDir, "config.toml"), config); err != nil {
+			panic(err.Error())
+		}
+		pp.Println(config)
+		fmt.Println()
+		return *config
+	}(configDir())
+
+	//
+	type Client struct {
+		*clickup.Client
 	}
-	pp.Println(config)
-	fmt.Println()
+	client := func(key string) Client {
+		client := clickup.NewClient(nil, key)
 
-	client := clickup.NewClient(nil, t.Key)
+		user, _, err := client.Authorization.GetAuthorizedUser(ctx)
+		if err != nil {
+			panic(err.Error())
+		}
+		fmt.Println("User:", user.Username)
+		return Client{client}
+	}(key)
 
-	user, _, err := client.Authorization.GetAuthorizedUser(ctx)
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Println("User:", user.Username)
+	//
+	teamID := func() string {
+		teams, _, err := client.Teams.GetTeams(ctx)
+		if err != nil {
+			panic(err.Error())
+		}
 
-	teams, _, err := client.Teams.GetTeams(ctx)
-	if err != nil {
-		panic(err.Error())
-	}
-	for _, team := range teams {
-		if team.Name == config.Team {
-			fmt.Println("Team:", team.Name)
-
-			spaces, _, err := client.Spaces.GetSpaces(ctx, team.ID)
-			if err != nil {
-				panic(err.Error())
+		id := ""
+		for _, team := range teams {
+			if team.Name == config.Team {
+				fmt.Println("Team:", team.Name)
+				id = team.ID
+				break
 			}
-			for _, space := range spaces {
-				if space.Name == config.Space {
-					fmt.Println("Space:", space.Name)
+		}
 
-					folders, _, err := client.Folders.GetFolders(ctx, space.ID, false)
-					if err != nil {
-						panic(err.Error())
-					}
+		if id == "" {
+			panic(fmt.Sprintln("team not found:", config.Team))
+		}
 
-					for _, folder := range folders {
-						if folder.Name == config.Folder {
-							fmt.Println("Folder:", folder.Name)
+		return id
+	}()
 
-							lists, _, err := client.Lists.GetLists(ctx, folder.ID, false)
-							if err != nil {
-								panic(err.Error())
-							}
+	//
+	spaceID := func() string {
+		spaces, _, err := client.Spaces.GetSpaces(ctx, teamID)
+		if err != nil {
+			panic(err.Error())
+		}
 
-							for i := len(lists) - 1; i >= 0; i-- {
-								if isCurrentSplint(lists[i].Name, config.SplintFormat, time.Now()) {
-									fmt.Println("Current spliint is", lists[i].Name)
-									return
-								}
-							}
-							panic("current splint not found")
-						}
-					}
-					panic(fmt.Sprintln("folder not found:", config.Folder))
-				}
+		id := ""
+		for _, space := range spaces {
+			if space.Name == config.Space {
+				fmt.Println("Space:", space.Name)
+				id = space.ID
+				break
 			}
+		}
+
+		if id == "" {
 			panic(fmt.Sprintln("space not found:", config.Space))
 		}
-	}
-	panic(fmt.Sprintln("team not found:", config.Team))
+
+		return id
+	}()
+
+	folderID := func() string {
+		folders, _, err := client.Folders.GetFolders(ctx, spaceID, false)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		id := ""
+		for _, folder := range folders {
+			if folder.Name == config.Folder {
+				fmt.Println("Folder:", folder.Name)
+				id = folder.ID
+			}
+		}
+
+		if id == "" {
+			panic(fmt.Sprintln("folder not found:", config.Folder))
+		}
+
+		return id
+	}()
+
+	curList := func() clickup.List {
+		lists, _, err := client.Lists.GetLists(ctx, folderID, false)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		for i := len(lists) - 1; i >= 0; i-- {
+			if isCurrentSplint(lists[i].Name, config.SplintFormat, time.Now()) {
+				return lists[i]
+			}
+		}
+		panic("current splint not found")
+	}()
+
+	fmt.Println("Current spliint is", curList.Name)
 }
 
 func isCurrentSplint(listName string, layout string, date time.Time) bool {
