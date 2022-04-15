@@ -30,69 +30,52 @@ func NewClient(ctx context.Context) Client {
 	return Client{client, user, config}
 }
 
-func (c Client) FetchTeamID(ctx context.Context) string {
+func (c Client) FetchTeam(ctx context.Context) *clickup.Team {
 	teams, _, err := c.Teams.GetTeams(ctx)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	id := ""
 	for _, team := range teams {
 		if team.Name == c.Config.Team {
-			id = team.ID
-			break
+			return &team
 		}
 	}
 
-	if id == "" {
-		panic(fmt.Sprintln("team not found:", c.Config.Team))
-	}
-
-	return id
+	panic(fmt.Sprintln("team not found:", c.Config.Team))
 }
 
-func (c Client) FetchSpaceID(ctx context.Context, teamID string) string {
+func (c Client) FetchSpace(ctx context.Context, teamID string) clickup.Space {
 	spaces, _, err := c.Spaces.GetSpaces(ctx, teamID)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	id := ""
 	for _, space := range spaces {
 		if space.Name == c.Config.Space {
-			id = space.ID
-			break
+			return space
 		}
 	}
 
-	if id == "" {
-		panic(fmt.Sprintln("space not found:", c.Config.Space))
-	}
-
-	return id
+	panic(fmt.Sprintln("space not found:", c.Config.Space))
 }
 
-func (c Client) FetchFolderID(ctx context.Context, spaceID string) string {
+func (c Client) FetchFolder(ctx context.Context, spaceID string) clickup.Folder {
 	folders, _, err := c.Folders.GetFolders(ctx, spaceID, false)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	id := ""
 	for _, folder := range folders {
 		if folder.Name == c.Config.Splint.Folder {
-			id = folder.ID
+			return folder
 		}
 	}
 
-	if id == "" {
-		panic(fmt.Sprintln("folder not found:", c.Config.Splint.Folder))
-	}
-
-	return id
+	panic(fmt.Sprintln("folder not found:", c.Config.Splint.Folder))
 }
 
-func (c Client) FetchCurrentSplintListID(ctx context.Context, folderID string) clickup.List {
+func (c Client) FetchCurrentSplintList(ctx context.Context, folderID string) clickup.List {
 	lists, _, err := c.Lists.GetLists(ctx, folderID, false)
 	if err != nil {
 		panic(err.Error())
