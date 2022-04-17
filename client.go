@@ -7,17 +7,17 @@ import (
 	"time"
 
 	"github.com/raksul/go-clickup/clickup"
+	"github.com/w-haibara/cuc/config"
 )
 
 type Client struct {
 	*clickup.Client
 	User   *clickup.User
-	Config Config
+	Config config.Config
 }
 
 func NewClient(ctx context.Context) Client {
-	configDir := ConfigDir()
-	key := ReadAPIKey(configDir)
+	key := config.ReadAPIKey()
 
 	client := clickup.NewClient(nil, key)
 
@@ -26,7 +26,7 @@ func NewClient(ctx context.Context) Client {
 		panic(err.Error())
 	}
 
-	config := ReadConfig(configDir)
+	config := config.ReadConfig()
 	return Client{client, user, config}
 }
 

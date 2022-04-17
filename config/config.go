@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"os"
@@ -6,6 +6,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 )
+
+var Dir = ConfigDir()
 
 func ConfigDir() string {
 	home, err := os.UserHomeDir()
@@ -23,12 +25,12 @@ func ConfigDir() string {
 	return dir
 }
 
-func ReadAPIKey(configDir string) string {
+func ReadAPIKey() string {
 	type tml struct {
 		Key string
 	}
 	t := new(tml)
-	if _, err := toml.DecodeFile(filepath.Join(configDir, "key.toml"), t); err != nil {
+	if _, err := toml.DecodeFile(filepath.Join(Dir, "key.toml"), t); err != nil {
 		panic(err.Error())
 	}
 	return t.Key
@@ -45,9 +47,9 @@ type SplintConfig struct {
 	TimeFormat string `toml:"time_format"`
 }
 
-func ReadConfig(configDir string) Config {
+func ReadConfig() Config {
 	config := new(Config)
-	if _, err := toml.DecodeFile(filepath.Join(configDir, "config.toml"), config); err != nil {
+	if _, err := toml.DecodeFile(filepath.Join(Dir, "config.toml"), config); err != nil {
 		panic(err.Error())
 	}
 	return *config
