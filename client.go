@@ -60,7 +60,7 @@ func (c Client) FetchSpace(ctx context.Context, teamID string) clickup.Space {
 	panic(fmt.Sprintln("space not found:", c.Config.Space))
 }
 
-func (c Client) FetchFolder(ctx context.Context, spaceID string) clickup.Folder {
+func (c Client) FetchSplintFolder(ctx context.Context, spaceID string) clickup.Folder {
 	folders, _, err := c.Folders.GetFolders(ctx, spaceID, false)
 	if err != nil {
 		panic(err.Error())
