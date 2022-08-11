@@ -13,7 +13,7 @@ type ConfigOptions struct {
 	cmdList.ListOptions
 }
 
-func NewCmdConfig(opts *ConfigOptions) *cobra.Command {
+func NewCmdConfig(opts ConfigOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config <command>",
 		Short: "Manage configuration for cuc",

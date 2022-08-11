@@ -22,7 +22,7 @@ func NewCmdRoot() *cobra.Command {
 
 	// Child commands
 	cmd.AddCommand(cmdConfig.NewCmdConfig(
-		&cmdConfig.ConfigOptions{},
+		cmdConfig.ConfigOptions{},
 	))
 
 	return cmd
