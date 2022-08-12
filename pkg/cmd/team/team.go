@@ -16,7 +16,7 @@ func NewCmdTeam(opts TeamOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "team",
 		Args:  cobra.ExactArgs(0),
-		Short: "",
+		Short: "List teams in a workspace",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return teamRun(opts)
 		},
