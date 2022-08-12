@@ -5,6 +5,7 @@ import (
 	"github.com/w-haibara/cuc/internal/config"
 	cmdConfig "github.com/w-haibara/cuc/pkg/cmd/config"
 	cmdLogin "github.com/w-haibara/cuc/pkg/cmd/login"
+	cmdSpace "github.com/w-haibara/cuc/pkg/cmd/space"
 	cmdTeam "github.com/w-haibara/cuc/pkg/cmd/team"
 )
 
@@ -33,6 +34,10 @@ func NewCmdRoot() *cobra.Command {
 
 	cmd.AddCommand(cmdTeam.NewCmdTeam(
 		cmdTeam.TeamOptions{},
+	))
+
+	cmd.AddCommand(cmdSpace.NewCmdSpace(
+		cmdSpace.SpaceOptions{},
 	))
 
 	return cmd
