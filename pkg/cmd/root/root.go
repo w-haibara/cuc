@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/internal/config"
 	cmdConfig "github.com/w-haibara/cuc/pkg/cmd/config"
+	loginConfig "github.com/w-haibara/cuc/pkg/cmd/login"
 )
 
 func NewCmdRoot() *cobra.Command {
@@ -23,6 +24,10 @@ func NewCmdRoot() *cobra.Command {
 	// Child commands
 	cmd.AddCommand(cmdConfig.NewCmdConfig(
 		cmdConfig.ConfigOptions{},
+	))
+
+	cmd.AddCommand(loginConfig.NewCmdLogin(
+		loginConfig.LoginOptions{},
 	))
 
 	return cmd
