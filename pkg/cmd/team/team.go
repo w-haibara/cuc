@@ -33,7 +33,7 @@ func teamRun(opts TeamOptions) error {
 	}
 
 	for _, team := range client.Teams {
-		fmt.Fprintf(iostreams.IO.Out, "%s", team.Name)
+		fmt.Fprintf(iostreams.IO.Out, "%s, %s", team.Name, team.ID)
 	}
 
 	return nil
