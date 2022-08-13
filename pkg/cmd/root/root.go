@@ -8,6 +8,7 @@ import (
 	cmdList "github.com/w-haibara/cuc/pkg/cmd/list"
 	cmdLogin "github.com/w-haibara/cuc/pkg/cmd/login"
 	cmdSpace "github.com/w-haibara/cuc/pkg/cmd/space"
+	cmdTask "github.com/w-haibara/cuc/pkg/cmd/task"
 	cmdTeam "github.com/w-haibara/cuc/pkg/cmd/team"
 )
 
@@ -48,6 +49,10 @@ func NewCmdRoot() *cobra.Command {
 
 	cmd.AddCommand(cmdList.NewCmdList(
 		cmdList.ListOptions{},
+	))
+
+	cmd.AddCommand(cmdTask.NewCmdTask(
+		cmdTask.TaskOptions{},
 	))
 
 	return cmd
