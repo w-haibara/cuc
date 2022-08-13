@@ -25,7 +25,7 @@ func NewCmdList(opts ListOptions) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&opts.Archived, "archived", "a", false, "limit to archived lists")
+	cmd.Flags().BoolVarP(&opts.Archived, "archived", "a", false, "Filter by archived status")
 
 	return cmd
 }
