@@ -1,6 +1,11 @@
 package listview
 
 import (
+	"bytes"
+	"fmt"
+
+	"github.com/charmbracelet/glamour"
+	"github.com/k0kubun/pp"
 	"github.com/olekukonko/tablewriter"
 	"github.com/w-haibara/cuc/pkg/iostreams"
 	"github.com/w-haibara/cuc/pkg/view/color"
@@ -8,7 +13,9 @@ import (
 
 type ListView struct {
 	*tablewriter.Table
+	IO      iostreams.IOStreams
 	Columns Columns
+	buf     *bytes.Buffer
 }
 
 type Columns struct {
@@ -22,13 +29,16 @@ type Key struct {
 }
 
 func New(io iostreams.IOStreams) ListView {
-	table := tablewriter.NewWriter(io.Out)
+	var buf bytes.Buffer
+	table := tablewriter.NewWriter(&buf)
 	view := ListView{
 		Table: table,
+		IO:    io,
 		Columns: Columns{
 			Keys:   &[]Key{},
 			Fields: map[string][]string{},
 		},
+		buf: &buf,
 	}
 	return view
 }
@@ -70,6 +80,15 @@ func (view ListView) Render() {
 
 	view.setStyle()
 	view.Table.Render()
+
+	pp.Println(view.buf.String())
+
+	out, err := glamour.Render(view.buf.String(), "dark")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Fprint(view.IO.Out, out)
 }
 
 func (view ListView) setStyle() {
