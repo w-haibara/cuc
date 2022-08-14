@@ -2,12 +2,13 @@ package task
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
 	"github.com/w-haibara/cuc/pkg/iostreams"
+	"github.com/w-haibara/cuc/pkg/view/listview"
 )
 
 type TaskOptions struct {
@@ -46,9 +47,24 @@ func taskRun(opts TaskOptions) error {
 		return err
 	}
 
+	view := listview.New(iostreams.IO)
+	view.SetKeys([]listview.Key{
+		{
+			Text:   "ID",
+			Colors: tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiBlackColor},
+		},
+		{
+			Text:   "Name",
+			Colors: tablewriter.Colors{tablewriter.Bold, tablewriter.FgBlueColor},
+		},
+	})
+	fields := map[string][]string{}
 	for _, task := range tasks {
-		fmt.Fprintf(iostreams.IO.Out, "%s, %s, %v\n", task.Name, task.ID, task.Archived)
+		fields["ID"] = append(fields["ID"], task.ID)
+		fields["Name"] = append(fields["Name"], task.Name)
 	}
+	view.AddFields(fields)
+	view.Render()
 
 	return nil
 }
