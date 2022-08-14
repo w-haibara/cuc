@@ -3,11 +3,11 @@ package task
 import (
 	"context"
 
-	"github.com/olekukonko/tablewriter"
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
 	"github.com/w-haibara/cuc/pkg/iostreams"
+	"github.com/w-haibara/cuc/pkg/view/color"
 	"github.com/w-haibara/cuc/pkg/view/listview"
 )
 
@@ -50,12 +50,18 @@ func taskRun(opts TaskOptions) error {
 	view := listview.New(iostreams.IO)
 	view.SetKeys([]listview.Key{
 		{
-			Text:   "ID",
-			Colors: tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiBlackColor},
+			Text: "ID",
+			ColorScheme: listview.ColorScheme{
+				Style:   color.Bold,
+				FgColor: color.FgHiBlack,
+			},
 		},
 		{
-			Text:   "Name",
-			Colors: tablewriter.Colors{tablewriter.Bold, tablewriter.FgBlueColor},
+			Text: "Name",
+			ColorScheme: listview.ColorScheme{
+				Style:   color.Bold,
+				FgColor: color.FgBlue,
+			},
 		},
 	})
 	fields := map[string][]string{}
