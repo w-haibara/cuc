@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
@@ -53,21 +54,35 @@ func taskRun(opts TaskOptions) error {
 			Text: "ID",
 			ColorScheme: listview.ColorScheme{
 				Style:   color.Bold,
-				FgColor: color.FgHiBlack,
+				FgColor: color.FgHiGreen,
+			},
+		},
+		{
+			Text: "CustomID",
+			ColorScheme: listview.ColorScheme{
+				Style:   color.Bold,
+				FgColor: color.FgHiGreen,
 			},
 		},
 		{
 			Text: "Name",
 			ColorScheme: listview.ColorScheme{
-				Style:   color.Bold,
-				FgColor: color.FgBlue,
+				Style: color.Bold,
+			},
+		},
+		{
+			Text: "Points",
+			ColorScheme: listview.ColorScheme{
+				Style: color.Bold,
 			},
 		},
 	})
 	fields := map[string][]string{}
 	for _, task := range tasks {
 		fields["ID"] = append(fields["ID"], task.ID)
+		fields["CustomID"] = append(fields["CustomID"], task.CustomID)
 		fields["Name"] = append(fields["Name"], task.Name)
+		fields["Points"] = append(fields["Points"], fmt.Sprintf("%d", task.Points))
 	}
 	view.AddFields(fields)
 	view.Render()
