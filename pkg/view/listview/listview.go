@@ -73,15 +73,9 @@ func (view ListView) Render() {
 }
 
 func (view ListView) setStyle() {
-	view.Table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	view.Table.SetAlignment(tablewriter.ALIGN_LEFT)
-	view.Table.SetCenterSeparator("")
-	view.Table.SetColumnSeparator("")
-	view.Table.SetRowSeparator("")
-	view.Table.SetHeaderLine(false)
-	view.Table.SetBorder(false)
-	view.Table.SetTablePadding("\t")
-	view.Table.SetNoWhiteSpace(true)
+	// Markdown style
+	view.Table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+	view.Table.SetCenterSeparator("|")
 }
 
 type ColorScheme struct {
