@@ -3,12 +3,11 @@ package task
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
-	"github.com/w-haibara/cuc/pkg/iostreams"
-	"github.com/w-haibara/cuc/pkg/view/color"
 	"github.com/w-haibara/cuc/pkg/view/listview"
 )
 
@@ -48,44 +47,25 @@ func taskRun(opts TaskOptions) error {
 		return err
 	}
 
-	view := listview.New(iostreams.IO)
-	view.SetKeys([]listview.Key{
-		{
-			Text: "ID",
-			ColorScheme: listview.ColorScheme{
-				Style:   color.Bold,
-				FgColor: color.FgHiGreen,
-			},
-		},
-		{
-			Text: "CustomID",
-			ColorScheme: listview.ColorScheme{
-				Style:   color.Bold,
-				FgColor: color.FgHiGreen,
-			},
-		},
-		{
-			Text: "Name",
-			ColorScheme: listview.ColorScheme{
-				Style: color.Bold,
-			},
-		},
-		{
-			Text: "Points",
-			ColorScheme: listview.ColorScheme{
-				Style: color.Bold,
-			},
-		},
-	})
-	fields := map[string][]string{}
-	for _, task := range tasks {
-		fields["ID"] = append(fields["ID"], task.ID)
-		fields["CustomID"] = append(fields["CustomID"], task.CustomID)
-		fields["Name"] = append(fields["Name"], task.Name)
-		fields["Points"] = append(fields["Points"], fmt.Sprintf("%d", task.Points))
+	view := listview.NewListView(fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name))
+	items := make([]listview.ListItem, len(tasks))
+	for i, task := range tasks {
+		customID := ""
+		if task.CustomID != "" {
+			customID = fmt.Sprintf("[%s] ", task.CustomID)
+		}
+		title := customID + task.Name
+
+		status := task.Status.Status
+		points := fmt.Sprintf("%d points", task.Points)
+		desc := strings.Join([]string{status, points}, " ")
+
+		items[i] = listview.ListItem{
+			Title: title,
+			Desc:  desc,
+		}
 	}
-	view.AddFields(fields)
-	view.Render()
+	view.Render(items)
 
 	return nil
 }
