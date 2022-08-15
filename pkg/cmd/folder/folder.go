@@ -3,10 +3,10 @@ package space
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
-	"github.com/w-haibara/cuc/pkg/iostreams"
 )
 
 type FolderOptions struct {
@@ -21,7 +21,7 @@ func NewCmdFolder(opts FolderOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.SpaceID = args[0]
-			return spaceRun(opts)
+			return spaceRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
 		},
 	}
 
@@ -30,7 +30,7 @@ func NewCmdFolder(opts FolderOptions) *cobra.Command {
 	return cmd
 }
 
-func spaceRun(opts FolderOptions) error {
+func spaceRun(opts FolderOptions, out, errOut io.Writer) error {
 	ctx := context.Background()
 	client, err := client.NewClient(ctx)
 	if err != nil {
@@ -43,7 +43,7 @@ func spaceRun(opts FolderOptions) error {
 	}
 
 	for _, folder := range folders {
-		fmt.Fprintf(iostreams.IO.Out, "%s, %s, %v\n", folder.Name, folder.ID, folder.Archived)
+		fmt.Fprintf(out, "%s, %s, %v\n", folder.Name, folder.ID, folder.Archived)
 	}
 
 	return nil

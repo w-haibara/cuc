@@ -2,10 +2,10 @@ package get
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/internal/config"
-	"github.com/w-haibara/cuc/pkg/iostreams"
 )
 
 type GetOptions struct {
@@ -19,21 +19,21 @@ func NewCmdConfigGet(opts GetOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.Key = args[0]
-			return getRun(opts)
+			return getRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
 		},
 	}
 
 	return cmd
 }
 
-func getRun(opts GetOptions) error {
+func getRun(opts GetOptions, out, errOut io.Writer) error {
 	val, err := config.Get(opts.Key)
 	if err != nil {
 		return err
 	}
 
 	if val != "" {
-		fmt.Fprintf(iostreams.IO.Out, "%s\n", val)
+		fmt.Fprintf(out, "%s\n", val)
 	}
 	return nil
 }

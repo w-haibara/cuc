@@ -4,6 +4,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/internal/config"
 	cmdConfig "github.com/w-haibara/cuc/pkg/cmd/config"
+	cmdExtension "github.com/w-haibara/cuc/pkg/cmd/extension"
+	cmdExtensionExec "github.com/w-haibara/cuc/pkg/cmd/extension/exec"
 	cmdFolder "github.com/w-haibara/cuc/pkg/cmd/folder"
 	cmdList "github.com/w-haibara/cuc/pkg/cmd/list"
 	cmdLogin "github.com/w-haibara/cuc/pkg/cmd/login"
@@ -53,6 +55,14 @@ func NewCmdRoot() *cobra.Command {
 
 	cmd.AddCommand(cmdTask.NewCmdTask(
 		cmdTask.TaskOptions{},
+	))
+
+	cmd.AddCommand(cmdExtension.NewCmdExtension(
+		cmdExtension.ExtensionOptions{
+			ExecOptions: cmdExtensionExec.ExecOptions{
+				Cmd: *cmd,
+			},
+		},
 	))
 
 	return cmd

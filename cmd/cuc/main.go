@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/w-haibara/cuc/pkg/cmd/root"
-	"github.com/w-haibara/cuc/pkg/iostreams"
 )
 
 type exitCode int
@@ -23,7 +22,7 @@ func main() {
 func mainRun() exitCode {
 	rootCmd := root.NewCmdRoot()
 	if cmd, err := rootCmd.ExecuteC(); err != nil {
-		fmt.Fprintln(iostreams.IO.ErrOut, "failed:", cmd.Name(), "\n", err.Error())
+		fmt.Fprintln(os.Stderr, "failed:", cmd.Name(), "\n", err.Error())
 		return exitError
 	}
 

@@ -3,10 +3,10 @@ package space
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
-	"github.com/w-haibara/cuc/pkg/iostreams"
 )
 
 type SpaceOptions struct {
@@ -20,14 +20,14 @@ func NewCmdSpace(opts SpaceOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.TeamID = args[0]
-			return spaceRun(opts)
+			return spaceRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
 		},
 	}
 
 	return cmd
 }
 
-func spaceRun(opts SpaceOptions) error {
+func spaceRun(opts SpaceOptions, out, errOut io.Writer) error {
 	ctx := context.Background()
 	client, err := client.NewClient(ctx)
 	if err != nil {
@@ -40,7 +40,7 @@ func spaceRun(opts SpaceOptions) error {
 	}
 
 	for _, space := range spaces {
-		fmt.Fprintf(iostreams.IO.Out, "%s, %s\n", space.Name, space.ID)
+		fmt.Fprintf(out, "%s, %s\n", space.Name, space.ID)
 	}
 
 	return nil

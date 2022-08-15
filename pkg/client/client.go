@@ -9,7 +9,6 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/raksul/go-clickup/clickup"
-	"github.com/w-haibara/cuc/pkg/iostreams"
 )
 
 var apiTokenFilePath = defaultApiTokenFilePath()
@@ -30,21 +29,6 @@ type Client struct {
 }
 
 func NewClient(ctx context.Context) (Client, error) {
-	client, err := newClient(ctx)
-	if err != nil {
-		fmt.Fprintln(iostreams.IO.ErrOut, "authentication failure:", err.Error())
-
-		if err := setupApiToken(); err != nil {
-			return Client{}, err
-		}
-
-		return NewClient(ctx)
-	}
-
-	return client, nil
-}
-
-func newClient(ctx context.Context) (Client, error) {
 	b, err := os.ReadFile(apiTokenFilePath)
 	if err != nil {
 		return Client{}, err
@@ -77,7 +61,7 @@ func NewClientWithoutFallback(ctx context.Context, token string) (Client, error)
 	return Client{client, user, teams}, nil
 }
 
-func setupApiToken() error {
+func SetupApiToken() error {
 	if _, err := os.Stat(apiTokenFilePath); err != nil {
 		if err := os.MkdirAll(filepath.Dir(apiTokenFilePath), 0755); err != nil {
 			return err

@@ -3,10 +3,10 @@ package login
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
-	"github.com/w-haibara/cuc/pkg/iostreams"
 )
 
 type LoginOptions struct {
@@ -18,24 +18,39 @@ func NewCmdLogin(opts LoginOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		Short: "Authenticate with ClickUp",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return loginRun(opts)
+			return loginRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
 		},
 	}
 
 	return cmd
 }
 
-func loginRun(opts LoginOptions) error {
+func loginRun(opts LoginOptions, out, errOut io.Writer) error {
 	ctx := context.Background()
-	client, err := client.NewClient(ctx)
+	c, err := newClient(ctx, out, errOut)
 	if err != nil {
 		return err
 	}
 
-	fmt.Fprintf(iostreams.IO.Out, "Authentication Success\nUser: %s\n", client.User.Username)
-	for _, team := range client.Teams {
-		fmt.Fprintf(iostreams.IO.Out, "Team: %s", team.Name)
+	fmt.Fprintf(out, "Authentication Success\nUser: %s\n", c.User.Username)
+	for _, team := range c.Teams {
+		fmt.Fprintf(out, "Team: %s", team.Name)
 	}
 
 	return nil
+}
+
+func newClient(ctx context.Context, out, errOut io.Writer) (client.Client, error) {
+	c, err := client.NewClient(ctx)
+	if err != nil {
+		fmt.Fprintln(errOut, "authentication failure:", err.Error())
+
+		if err := client.SetupApiToken(); err != nil {
+			return client.Client{}, err
+		}
+
+		return newClient(ctx, out, errOut)
+	}
+
+	return c, nil
 }

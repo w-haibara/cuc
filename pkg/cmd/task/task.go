@@ -3,6 +3,7 @@ package task
 import (
 	"context"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/raksul/go-clickup/clickup"
@@ -23,7 +24,7 @@ func NewCmdTask(opts TaskOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.ListID = args[0]
-			return taskRun(opts)
+			return taskRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
 		},
 	}
 
@@ -32,7 +33,7 @@ func NewCmdTask(opts TaskOptions) *cobra.Command {
 	return cmd
 }
 
-func taskRun(opts TaskOptions) error {
+func taskRun(opts TaskOptions, out, errOut io.Writer) error {
 	ctx := context.Background()
 	client, err := client.NewClient(ctx)
 	if err != nil {

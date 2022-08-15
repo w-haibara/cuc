@@ -3,11 +3,11 @@ package set
 import (
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/internal/config"
-	"github.com/w-haibara/cuc/pkg/iostreams"
 )
 
 type SetOptions struct {
@@ -24,17 +24,17 @@ func NewCmdConfigSet(opts SetOptions) *cobra.Command {
 			opts.Key = args[0]
 			opts.Value = args[1]
 
-			return setRun(opts)
+			return setRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
 		},
 	}
 
 	return cmd
 }
 
-func setRun(opts SetOptions) error {
+func setRun(opts SetOptions, out, errOut io.Writer) error {
 	if err := ValidateKey(opts.Key); err != nil {
 		warningIcon := "⚠️" //iostreams.IO.ColorScheme().WarningIcon()
-		fmt.Fprintf(iostreams.IO.ErrOut, "%s warning: '%s' is not a known configuration key\n", warningIcon, opts.Key)
+		fmt.Fprintf(errOut, "%s warning: '%s' is not a known configuration key\n", warningIcon, opts.Key)
 	}
 
 	if err := ValidateValue(opts.Key, opts.Value); err != nil {

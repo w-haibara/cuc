@@ -3,11 +3,11 @@ package list
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
-	"github.com/w-haibara/cuc/pkg/iostreams"
 )
 
 type ListOptions struct {
@@ -23,7 +23,7 @@ func NewCmdList(opts ListOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.FolderID = args[0]
-			return listRun(opts)
+			return listRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
 		},
 	}
 
@@ -33,7 +33,7 @@ func NewCmdList(opts ListOptions) *cobra.Command {
 	return cmd
 }
 
-func listRun(opts ListOptions) error {
+func listRun(opts ListOptions, out, errOut io.Writer) error {
 	ctx := context.Background()
 	client, err := client.NewClient(ctx)
 	if err != nil {
@@ -54,7 +54,7 @@ func listRun(opts ListOptions) error {
 	}
 
 	for _, list := range lists {
-		fmt.Fprintf(iostreams.IO.Out, "%s, %s, %v\n", list.Name, list.ID, list.Archived)
+		fmt.Fprintf(out, "%s, %s, %v\n", list.Name, list.ID, list.Archived)
 	}
 
 	return nil
