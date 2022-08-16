@@ -48,7 +48,7 @@ func (ext Extension) Setup() error {
 		for i, v := range call.ArgumentList {
 			args[i] = v.String()
 		}
-		ext.Cmd.SetArgs(args)
+		ext.Cmd.SetArgs(append(args, "--json"))
 
 		outBuf := new(bytes.Buffer)
 		errBuf := new(bytes.Buffer)
@@ -89,17 +89,18 @@ func (ext Extension) setOutput(out, errOut io.Writer) {
 	}
 }
 
-func (ext Extension) Run(name string, args []string) error {
+func (ext Extension) Run(name string, args []string) (otto.Value, error) {
 	f, err := lookup(name)
 	if err != nil {
-		return err
+		return otto.NullValue(), err
 	}
 
-	if _, err := ext.VM.Run(f); err != nil {
-		return err
+	v, err := ext.VM.Run(f)
+	if err != nil {
+		return otto.NullValue(), err
 	}
 
-	return nil
+	return v, nil
 }
 
 func lookup(name string) (*os.File, error) {

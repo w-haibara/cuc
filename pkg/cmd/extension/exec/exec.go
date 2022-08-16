@@ -35,8 +35,20 @@ func execRun(opts ExecOptions, out, errOut io.Writer, jsonFlag bool) error {
 		return err
 	}
 
-	if err := ext.Run(opts.ExtCmdName, opts.Args); err != nil {
+	v, err := ext.Run(opts.ExtCmdName, opts.Args)
+	if err != nil {
 		return err
+	}
+
+	if jsonFlag {
+		v, err := v.Export()
+		if err != nil {
+			return err
+		}
+
+		jsonview.Render(out, map[string]any{
+			"result": v,
+		})
 	}
 
 	return nil

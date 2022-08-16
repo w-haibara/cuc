@@ -33,9 +33,11 @@ func NewCmdConfigSet(opts SetOptions) *cobra.Command {
 }
 
 func setRun(opts SetOptions, out, errOut io.Writer, jsonFlag bool) error {
-	if err := ValidateKey(opts.Key); err != nil {
-		warningIcon := "⚠️" //iostreams.IO.ColorScheme().WarningIcon()
-		fmt.Fprintf(errOut, "%s warning: '%s' is not a known configuration key\n", warningIcon, opts.Key)
+	if !jsonFlag {
+		if err := ValidateKey(opts.Key); err != nil {
+			warningIcon := "⚠️" //iostreams.IO.ColorScheme().WarningIcon()
+			fmt.Fprintf(errOut, "%s warning: '%s' is not a known configuration key\n", warningIcon, opts.Key)
+		}
 	}
 
 	if err := ValidateValue(opts.Key, opts.Value); err != nil {

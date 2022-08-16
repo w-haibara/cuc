@@ -32,6 +32,11 @@ func listRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 		return err
 	}
 
+	if jsonFlag {
+		jsonview.Render(out, scripts)
+		return nil
+	}
+
 	for _, info := range scripts {
 		fmt.Fprintln(out, info.Name, info.UpdatedAt.Format(time.RFC822), info.Size, info.Path)
 	}

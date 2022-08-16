@@ -49,6 +49,15 @@ func taskRun(opts TaskOptions, out, errOut io.Writer, jsonFlag bool) error {
 		return err
 	}
 
+	if jsonFlag {
+		jsonview.Render(out, tasks)
+		return nil
+	}
+
+	if len(tasks) == 0 {
+		return nil
+	}
+
 	view := listview.NewListView(fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name))
 	items := make([]listview.ListItem, len(tasks))
 	for i, task := range tasks {

@@ -54,6 +54,11 @@ func listRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 		}
 	}
 
+	if jsonFlag {
+		jsonview.Render(out, lists)
+		return nil
+	}
+
 	for _, list := range lists {
 		fmt.Fprintf(out, "%s, %s, %v\n", list.Name, list.ID, list.Archived)
 	}

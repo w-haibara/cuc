@@ -33,6 +33,13 @@ func getRun(opts GetOptions, out, errOut io.Writer, jsonFlag bool) error {
 		return err
 	}
 
+	if jsonFlag {
+		jsonview.Render(out, map[string]string{
+			opts.Key: val,
+		})
+		return nil
+	}
+
 	if val != "" {
 		fmt.Fprintf(out, "%s\n", val)
 	}

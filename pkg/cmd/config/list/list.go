@@ -27,6 +27,11 @@ func NewCmdConfigList(opts ListOptions) *cobra.Command {
 }
 
 func listRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
+	if jsonFlag {
+		jsonview.Render(out, config.Configs())
+		return nil
+	}
+
 	for _, cfg := range config.Configs() {
 		val, err := config.Get(cfg.Key)
 		if err != nil {

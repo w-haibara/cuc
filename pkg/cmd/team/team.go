@@ -34,14 +34,7 @@ func teamRun(opts TeamOptions, out, errOut io.Writer, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		obj := make([]map[string]string, len(client.Teams))
-		for i, team := range client.Teams {
-			obj[i] = map[string]string{
-				"ID":   team.ID,
-				"Name": team.Name,
-			}
-		}
-		jsonview.Render(out, obj)
+		jsonview.Render(out, client.Teams)
 		return nil
 	}
 
