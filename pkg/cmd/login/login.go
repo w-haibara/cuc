@@ -28,9 +28,22 @@ func NewCmdLogin(opts LoginOptions) *cobra.Command {
 
 func loginRun(opts LoginOptions, out, errOut io.Writer, jsonFlag bool) error {
 	ctx := context.Background()
-	c, err := newClient(ctx, out, errOut)
+	c, err := newClient(ctx, out, errOut, jsonFlag)
 	if err != nil {
+		if jsonFlag {
+			jsonview.Render(out, map[string]string{
+				"status": "ng",
+				"error":  err.Error(),
+			})
+			return nil
+		}
+
 		return err
+	}
+
+	if jsonFlag {
+		jsonview.Render(out, map[string]string{"status": "ok"})
+		return nil
 	}
 
 	fmt.Fprintf(out, "Authentication Success\nUser: %s\n", c.User.Username)
@@ -41,16 +54,20 @@ func loginRun(opts LoginOptions, out, errOut io.Writer, jsonFlag bool) error {
 	return nil
 }
 
-func newClient(ctx context.Context, out, errOut io.Writer) (client.Client, error) {
+func newClient(ctx context.Context, out, errOut io.Writer, jsonFlag bool) (client.Client, error) {
 	c, err := client.NewClient(ctx)
 	if err != nil {
+		if jsonFlag {
+			return client.Client{}, err
+		}
+
 		fmt.Fprintln(errOut, "authentication failure:", err.Error())
 
 		if err := client.SetupApiToken(); err != nil {
 			return client.Client{}, err
 		}
 
-		return newClient(ctx, out, errOut)
+		return newClient(ctx, out, errOut, false)
 	}
 
 	return c, nil

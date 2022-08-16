@@ -41,11 +41,7 @@ func teamRun(opts TeamOptions, out, errOut io.Writer, jsonFlag bool) error {
 				"Name": team.Name,
 			}
 		}
-
-		if err := jsonview.Render(out, obj); err != nil {
-			return err
-		}
-
+		jsonview.Render(out, obj)
 		return nil
 	}
 

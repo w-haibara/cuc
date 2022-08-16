@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 )
 
@@ -17,13 +18,15 @@ func JsonFlag(cmd *cobra.Command) bool {
 	return json
 }
 
-func Render(out io.Writer, obj any) error {
+func Render(out io.Writer, obj any) {
 	b, err := json.MarshalIndent(obj, "", "  ")
 	if err != nil {
-		return err
+		fmt.Fprintf(out, heredoc.Docf(`
+		{
+			"error": %s
+		}
+		`), err.Error())
 	}
 
 	fmt.Fprintln(out, string(b))
-
-	return nil
 }
