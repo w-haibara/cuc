@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
@@ -41,6 +42,23 @@ func spaceRun(opts FolderOptions, out, errOut io.Writer, jsonFlag bool) error {
 	folders, _, err := client.Folders.GetFolders(ctx, opts.SpaceID, opts.Archived)
 	if err != nil {
 		return err
+	}
+
+	if jsonFlag {
+		obj := make([]map[string]string, len(folders))
+		for i, folder := range folders {
+			obj[i] = map[string]string{
+				"ID":               folder.ID,
+				"Name":             folder.Name,
+				"Orderindex":       strconv.FormatInt(int64(folder.Orderindex), 10),
+				"OverrideStatuses": strconv.FormatBool(folder.OverrideStatuses),
+				"Hidden":           strconv.FormatBool(folder.Hidden),
+				"TaskCount":        folder.TaskCount.String(),
+				"Archived":         strconv.FormatBool(folder.Archived),
+			}
+		}
+		jsonview.Render(out, obj)
+		return nil
 	}
 
 	for _, folder := range folders {
