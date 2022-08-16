@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/internal/config"
+	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type SetOptions struct {
@@ -24,14 +25,14 @@ func NewCmdConfigSet(opts SetOptions) *cobra.Command {
 			opts.Key = args[0]
 			opts.Value = args[1]
 
-			return setRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
+			return setRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
 		},
 	}
 
 	return cmd
 }
 
-func setRun(opts SetOptions, out, errOut io.Writer) error {
+func setRun(opts SetOptions, out, errOut io.Writer, jsonFlag bool) error {
 	if err := ValidateKey(opts.Key); err != nil {
 		warningIcon := "⚠️" //iostreams.IO.ColorScheme().WarningIcon()
 		fmt.Fprintf(errOut, "%s warning: '%s' is not a known configuration key\n", warningIcon, opts.Key)

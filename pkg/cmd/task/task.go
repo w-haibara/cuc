@@ -9,6 +9,7 @@ import (
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/view/jsonview"
 	"github.com/w-haibara/cuc/pkg/view/listview"
 )
 
@@ -24,7 +25,7 @@ func NewCmdTask(opts TaskOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.ListID = args[0]
-			return taskRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
+			return taskRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
 		},
 	}
 
@@ -33,7 +34,7 @@ func NewCmdTask(opts TaskOptions) *cobra.Command {
 	return cmd
 }
 
-func taskRun(opts TaskOptions, out, errOut io.Writer) error {
+func taskRun(opts TaskOptions, out, errOut io.Writer, jsonFlag bool) error {
 	ctx := context.Background()
 	client, err := client.NewClient(ctx)
 	if err != nil {

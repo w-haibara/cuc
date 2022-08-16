@@ -8,6 +8,7 @@ import (
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type ListOptions struct {
@@ -23,7 +24,7 @@ func NewCmdList(opts ListOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.FolderID = args[0]
-			return listRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
+			return listRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
 		},
 	}
 
@@ -33,7 +34,7 @@ func NewCmdList(opts ListOptions) *cobra.Command {
 	return cmd
 }
 
-func listRun(opts ListOptions, out, errOut io.Writer) error {
+func listRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 	ctx := context.Background()
 	client, err := client.NewClient(ctx)
 	if err != nil {

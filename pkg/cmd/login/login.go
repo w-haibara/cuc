@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type LoginOptions struct {
@@ -18,14 +19,14 @@ func NewCmdLogin(opts LoginOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		Short: "Authenticate with ClickUp",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return loginRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
+			return loginRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
 		},
 	}
 
 	return cmd
 }
 
-func loginRun(opts LoginOptions, out, errOut io.Writer) error {
+func loginRun(opts LoginOptions, out, errOut io.Writer, jsonFlag bool) error {
 	ctx := context.Background()
 	c, err := newClient(ctx, out, errOut)
 	if err != nil {

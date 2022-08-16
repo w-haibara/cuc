@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type FolderOptions struct {
@@ -21,7 +22,7 @@ func NewCmdFolder(opts FolderOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.SpaceID = args[0]
-			return spaceRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
+			return spaceRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
 		},
 	}
 
@@ -30,7 +31,7 @@ func NewCmdFolder(opts FolderOptions) *cobra.Command {
 	return cmd
 }
 
-func spaceRun(opts FolderOptions, out, errOut io.Writer) error {
+func spaceRun(opts FolderOptions, out, errOut io.Writer, jsonFlag bool) error {
 	ctx := context.Background()
 	client, err := client.NewClient(ctx)
 	if err != nil {

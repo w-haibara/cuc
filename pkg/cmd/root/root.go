@@ -27,6 +27,7 @@ func NewCmdRoot() *cobra.Command {
 
 	cmd.Flags().Bool("version", false, "Show cuc version")
 	cmd.PersistentFlags().Bool("help", false, "Show help for command")
+	cmd.PersistentFlags().Bool("json", false, "Output JSON")
 
 	// Child commands
 	cmd.AddCommand(cmdConfig.NewCmdConfig(

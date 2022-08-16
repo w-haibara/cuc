@@ -11,7 +11,6 @@ import (
 )
 
 type TeamOptions struct {
-	Json bool
 }
 
 func NewCmdTeam(opts TeamOptions) *cobra.Command {
@@ -20,23 +19,21 @@ func NewCmdTeam(opts TeamOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		Short: "List teams in a workspace",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return teamRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
+			return teamRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
 		},
 	}
-
-	cmd.Flags().BoolVar(&opts.Json, "json", false, "Output JSON")
 
 	return cmd
 }
 
-func teamRun(opts TeamOptions, out, errOut io.Writer) error {
+func teamRun(opts TeamOptions, out, errOut io.Writer, jsonFlag bool) error {
 	ctx := context.Background()
 	client, err := client.NewClient(ctx)
 	if err != nil {
 		return err
 	}
 
-	if opts.Json {
+	if jsonFlag {
 		obj := make([]map[string]string, len(client.Teams))
 		for i, team := range client.Teams {
 			obj[i] = map[string]string{

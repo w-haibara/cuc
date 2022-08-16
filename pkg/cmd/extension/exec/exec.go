@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/extension"
+	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type ExecOptions struct {
@@ -21,14 +22,14 @@ func NewCmdExtensionExec(opts ExecOptions) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.ExtCmdName = args[0]
 			opts.Args = args[1:]
-			return execRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr())
+			return execRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
 		},
 	}
 
 	return cmd
 }
 
-func execRun(opts ExecOptions, out, errOut io.Writer) error {
+func execRun(opts ExecOptions, out, errOut io.Writer, jsonFlag bool) error {
 	ext := extension.NewExtension(&opts.Cmd)
 	if err := ext.Setup(); err != nil {
 		return err
