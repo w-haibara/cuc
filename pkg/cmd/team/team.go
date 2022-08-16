@@ -2,12 +2,12 @@ package team
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type TeamOptions struct {
@@ -36,20 +36,18 @@ func teamRun(opts TeamOptions, out, errOut io.Writer) error {
 	}
 
 	if opts.json {
-		type _obj struct {
-			ID   string
-			Name string
-		}
-		obj := make([]_obj, len(client.Teams))
+		obj := make([]map[string]string, len(client.Teams))
 		for i, team := range client.Teams {
-			obj[i].ID = team.ID
-			obj[i].Name = team.Name
+			obj[i] = map[string]string{
+				"ID":   team.ID,
+				"Name": team.Name,
+			}
 		}
-		b, err := json.Marshal(obj)
-		if err != nil {
+
+		if err := jsonview.Render(out, obj); err != nil {
 			return err
 		}
-		fmt.Fprintln(out, string(b))
+
 		return nil
 	}
 
