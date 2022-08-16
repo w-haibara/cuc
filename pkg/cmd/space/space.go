@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
@@ -38,6 +39,21 @@ func spaceRun(opts SpaceOptions, out, errOut io.Writer, jsonFlag bool) error {
 	spaces, _, err := client.Spaces.GetSpaces(ctx, opts.TeamID)
 	if err != nil {
 		return err
+	}
+
+	if jsonFlag {
+		obj := make([]map[string]string, len(spaces))
+		for i, space := range spaces {
+			obj[i] = map[string]string{
+				"ID":                space.ID,
+				"Name":              space.Name,
+				"Private":           strconv.FormatBool(space.Private),
+				"MultipleAssignees": strconv.FormatBool(space.MultipleAssignees),
+				"Archived":          strconv.FormatBool(space.Archived),
+			}
+		}
+		jsonview.Render(out, obj)
+		return nil
 	}
 
 	for _, space := range spaces {
