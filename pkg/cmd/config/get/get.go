@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/spf13/cobra"
-	"github.com/w-haibara/cuc/internal/config"
+	"github.com/w-haibara/cuc/pkg/config"
 	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 

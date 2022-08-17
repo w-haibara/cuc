@@ -2,7 +2,6 @@ package root
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/w-haibara/cuc/internal/config"
 	cmdConfig "github.com/w-haibara/cuc/pkg/cmd/config"
 	cmdExtension "github.com/w-haibara/cuc/pkg/cmd/extension"
 	cmdExtensionExec "github.com/w-haibara/cuc/pkg/cmd/extension/exec"
@@ -12,6 +11,7 @@ import (
 	cmdSpace "github.com/w-haibara/cuc/pkg/cmd/space"
 	cmdTask "github.com/w-haibara/cuc/pkg/cmd/task"
 	cmdTeam "github.com/w-haibara/cuc/pkg/cmd/team"
+	"github.com/w-haibara/cuc/pkg/config"
 	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
