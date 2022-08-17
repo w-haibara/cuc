@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
 	"github.com/w-haibara/cuc/pkg/util"
-	"github.com/w-haibara/cuc/pkg/view"
 	"github.com/w-haibara/cuc/pkg/view/jsonview"
+	"github.com/w-haibara/cuc/pkg/view/listview"
 )
 
 type ListOptions struct {
@@ -59,8 +59,9 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 		return nil
 	}
 
-	view := view.NewListView(fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name), len(tasks))
-	for _, task := range tasks {
+	view := listview.NewListView(fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name))
+	items := make([]listview.ListItem, len(tasks))
+	for i, task := range tasks {
 		customID := ""
 		if task.CustomID != "" {
 			customID = fmt.Sprintf("[%s] ", task.CustomID)
@@ -71,9 +72,12 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 		points := fmt.Sprintf("%d points", task.Points)
 		desc := strings.Join([]string{status, points}, " ")
 
-		view.AppendItem(title, desc)
+		items[i] = listview.ListItem{
+			Title: title,
+			Desc:  desc,
+		}
 	}
-	view.Render()
+	view.Render(items)
 
 	return nil
 }
