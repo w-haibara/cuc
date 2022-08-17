@@ -7,18 +7,27 @@ import (
 )
 
 type ListView struct {
-	Title string
+	Title     string
+	ListItems []ListItem
 }
 
-func NewListView(title string) ListView {
+func NewListView(title string, size int) ListView {
 	return ListView{
-		Title: title,
+		Title:     title,
+		ListItems: make([]ListItem, 0, size),
 	}
 }
 
-func (view ListView) Render(listItems []ListItem) error {
-	items := make([]list.Item, len(listItems))
-	for i, v := range listItems {
+func (view *ListView) AppendItem(title, desc string) {
+	view.ListItems = append(view.ListItems, ListItem{
+		Title: title,
+		Desc:  desc,
+	})
+}
+
+func (view *ListView) Render() error {
+	items := make([]list.Item, len(view.ListItems))
+	for i, v := range view.ListItems {
 		items[i] = item{v.Title, v.Desc}
 	}
 
