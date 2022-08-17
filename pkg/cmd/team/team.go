@@ -1,46 +1,21 @@
 package team
 
 import (
-	"context"
-	"fmt"
-	"io"
-
 	"github.com/spf13/cobra"
-	"github.com/w-haibara/cuc/pkg/client"
-	"github.com/w-haibara/cuc/pkg/view/jsonview"
+	cmdList "github.com/w-haibara/cuc/pkg/cmd/team/list"
 )
 
 type TeamOptions struct {
+	cmdList.ListOptions
 }
 
 func NewCmdTeam(opts TeamOptions) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "team",
-		Args:  cobra.ExactArgs(0),
-		Short: "List teams in a workspace",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return teamRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
-		},
+		Use:   "team <command>",
+		Short: "Work with ClickUp teams",
 	}
+
+	cmd.AddCommand(cmdList.NewCmdTeamList(opts.ListOptions))
 
 	return cmd
-}
-
-func teamRun(opts TeamOptions, out, errOut io.Writer, jsonFlag bool) error {
-	ctx := context.Background()
-	client, err := client.NewClient(ctx)
-	if err != nil {
-		return err
-	}
-
-	if jsonFlag {
-		jsonview.Render(out, client.Teams)
-		return nil
-	}
-
-	for _, team := range client.Teams {
-		fmt.Fprintf(out, "%s, %s\n", team.Name, team.ID)
-	}
-
-	return nil
 }
