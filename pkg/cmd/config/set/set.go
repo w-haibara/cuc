@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/config"
-	"github.com/w-haibara/cuc/pkg/view/jsonview"
+	"github.com/w-haibara/cuc/pkg/util"
 )
 
 type SetOptions struct {
@@ -25,7 +25,7 @@ func NewCmdConfigSet(opts SetOptions) *cobra.Command {
 			opts.Key = args[0]
 			opts.Value = args[1]
 
-			return setRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
+			return setRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), util.JsonFlag(cmd))
 		},
 	}
 

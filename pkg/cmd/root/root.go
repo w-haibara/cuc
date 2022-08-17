@@ -12,6 +12,7 @@ import (
 	cmdTask "github.com/w-haibara/cuc/pkg/cmd/task"
 	cmdTeam "github.com/w-haibara/cuc/pkg/cmd/team"
 	"github.com/w-haibara/cuc/pkg/config"
+	"github.com/w-haibara/cuc/pkg/util"
 	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
@@ -26,7 +27,7 @@ func NewCmdRoot() *Command {
 func (cmd *Command) ExecuteC() (*Command, error) {
 	c, err := cmd.Command.ExecuteC()
 	if err != nil {
-		if jsonview.JsonFlag(cmd.Command) {
+		if util.JsonFlag(cmd.Command) {
 			jsonview.Render(cmd.OutOrStderr(), map[string]string{
 				"error": err.Error(),
 			})

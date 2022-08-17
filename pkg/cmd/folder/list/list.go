@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/util"
 	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
@@ -22,7 +23,7 @@ func NewCmdFolderList(opts ListOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.SpaceID = args[0]
-			return listRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
+			return listRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), util.JsonFlag(cmd))
 		},
 	}
 

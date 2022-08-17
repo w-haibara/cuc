@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/util"
 	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
@@ -21,7 +22,7 @@ func NewCmdSpaceList(opts ListOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.TeamID = args[0]
-			return spaceRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
+			return spaceRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), util.JsonFlag(cmd))
 		},
 	}
 

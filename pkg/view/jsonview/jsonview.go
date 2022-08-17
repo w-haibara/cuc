@@ -6,17 +6,7 @@ import (
 	"io"
 
 	"github.com/MakeNowJust/heredoc/v2"
-	"github.com/spf13/cobra"
 )
-
-func JsonFlag(cmd *cobra.Command) bool {
-	json, err := cmd.Flags().GetBool("json")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	return json
-}
 
 func Render(out io.Writer, obj any) {
 	b, err := json.MarshalIndent(obj, "", "  ")

@@ -9,6 +9,7 @@ import (
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/util"
 	"github.com/w-haibara/cuc/pkg/view/jsonview"
 	"github.com/w-haibara/cuc/pkg/view/listview"
 )
@@ -25,7 +26,7 @@ func NewCmdTaskList(opts ListOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.ListID = args[0]
-			return taskRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
+			return taskRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), util.JsonFlag(cmd))
 		},
 	}
 

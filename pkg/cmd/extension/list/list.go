@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/extension"
+	"github.com/w-haibara/cuc/pkg/util"
 	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
@@ -19,7 +20,7 @@ func NewCmdExtensionList(opts ListOptions) *cobra.Command {
 		Short: "List installed extension commands",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return listRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
+			return listRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), util.JsonFlag(cmd))
 		},
 	}
 

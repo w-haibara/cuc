@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/extension"
+	"github.com/w-haibara/cuc/pkg/util"
 	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
@@ -22,7 +23,7 @@ func NewCmdExtensionExec(opts ExecOptions) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.ExtCmdName = args[0]
 			opts.Args = args[1:]
-			return execRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), jsonview.JsonFlag(cmd))
+			return execRun(opts, cmd.OutOrStdout(), cmd.OutOrStderr(), util.JsonFlag(cmd))
 		},
 	}
 
