@@ -62,23 +62,25 @@ type ListMsg struct {
 	Items []list.Item
 }
 
-func NewListMsg(title string) *ListMsg {
-	msg := ListMsg{
+func NewListMsg(title string, items []list.Item) ListMsg {
+	return ListMsg{
 		Title: title,
+		Items: items,
 	}
-	return &msg
-}
-
-func (msg *ListMsg) AppendItem(title, desc string) {
-	if msg.Items == nil {
-		msg.Items = make([]list.Item, 1)
-	}
-	msg.Items = append(msg.Items, ListItem{title, desc})
 }
 
 type ListItem struct {
 	Title_ string
 	Desc   string
+}
+
+func MakeListItems(size int) *[]list.Item {
+	items := make([]list.Item, 0, size)
+	return &items
+}
+
+func AppendItem(items *[]list.Item, title, desc string) {
+	*items = append(*items, ListItem{title, desc})
 }
 
 func (item ListItem) Title() string       { return item.Title_ }
