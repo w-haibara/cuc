@@ -8,8 +8,8 @@ import (
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/ui/jsonui"
 	"github.com/w-haibara/cuc/pkg/util"
-	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type ListOptions struct {
@@ -56,7 +56,10 @@ func listRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		jsonview.Render(out, lists)
+		if err := jsonui.NewJsonModel(lists).Render(); err != nil {
+			return err
+		}
+
 		return nil
 	}
 

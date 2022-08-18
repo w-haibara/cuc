@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/ui/jsonui"
 	"github.com/w-haibara/cuc/pkg/util"
-	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type ListOptions struct {
@@ -42,7 +42,10 @@ func spaceRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		jsonview.Render(out, spaces)
+		if err := jsonui.NewJsonModel(spaces).Render(); err != nil {
+			return err
+		}
+
 		return nil
 	}
 

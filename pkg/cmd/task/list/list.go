@@ -6,12 +6,13 @@ import (
 	"io"
 	"strings"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/raksul/go-clickup/clickup"
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/ui/jsonui"
+	"github.com/w-haibara/cuc/pkg/ui/listui"
 	"github.com/w-haibara/cuc/pkg/util"
-	"github.com/w-haibara/cuc/pkg/view/jsonview"
-	"github.com/w-haibara/cuc/pkg/view/listview"
 )
 
 type ListOptions struct {
@@ -36,10 +37,61 @@ func NewCmdTaskList(opts ListOptions) *cobra.Command {
 }
 
 func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
+	if jsonFlag {
+		tasks, err := getTasks(opts)
+		if err != nil {
+			return err
+		}
+
+		if err := jsonui.NewJsonModel(tasks).Render(); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	fn := func() tea.Msg {
+		tasks, err := getTasks(opts)
+		if err != nil {
+			return err
+		}
+
+		if len(tasks) == 0 {
+			return fmt.Errorf("there are no tasks")
+		}
+
+		title := fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name)
+		msg := listui.NewListMsg(title)
+		for _, task := range tasks {
+			customID := ""
+			if task.CustomID != "" {
+				customID = fmt.Sprintf("[%s] ", task.CustomID)
+			}
+
+			status := task.Status.Status
+			points := fmt.Sprintf("%d points", task.Points)
+
+			msg.AppendItem(
+				customID+task.Name,
+				strings.Join([]string{status, points}, " "),
+			)
+		}
+
+		return *msg
+	}
+
+	if err := listui.NewListModel("Tasks in ...", fn).Render(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getTasks(opts ListOptions) ([]clickup.Task, error) {
 	ctx := context.Background()
 	client, err := client.NewClient(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	taskOpts := clickup.GetTasksOptions{
@@ -47,37 +99,8 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 	}
 	tasks, _, err := client.Tasks.GetTasks(ctx, opts.ListID, &taskOpts)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if jsonFlag {
-		jsonview.Render(out, tasks)
-		return nil
-	}
-
-	if len(tasks) == 0 {
-		return nil
-	}
-
-	view := listview.NewListView(fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name))
-	items := make([]listview.ListItem, len(tasks))
-	for i, task := range tasks {
-		customID := ""
-		if task.CustomID != "" {
-			customID = fmt.Sprintf("[%s] ", task.CustomID)
-		}
-		title := customID + task.Name
-
-		status := task.Status.Status
-		points := fmt.Sprintf("%d points", task.Points)
-		desc := strings.Join([]string{status, points}, " ")
-
-		items[i] = listview.ListItem{
-			Title: title,
-			Desc:  desc,
-		}
-	}
-	view.Render(items)
-
-	return nil
+	return tasks, nil
 }

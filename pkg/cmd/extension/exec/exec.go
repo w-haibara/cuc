@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/extension"
+	"github.com/w-haibara/cuc/pkg/ui/jsonui"
 	"github.com/w-haibara/cuc/pkg/util"
-	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type ExecOptions struct {
@@ -47,9 +47,12 @@ func execRun(opts ExecOptions, out, errOut io.Writer, jsonFlag bool) error {
 			return err
 		}
 
-		jsonview.Render(out, map[string]any{
+		obj := map[string]any{
 			"result": v,
-		})
+		}
+		if err := jsonui.NewJsonModel(obj).Render(); err != nil {
+			return err
+		}
 	}
 
 	return nil

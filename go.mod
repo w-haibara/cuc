@@ -4,10 +4,9 @@ go 1.19
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.5
-	github.com/MakeNowJust/heredoc/v2 v2.0.1
+	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/charmbracelet/bubbles v0.13.0
 	github.com/charmbracelet/bubbletea v0.22.0
-	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/raksul/go-clickup v0.0.0-20220730071535-2c2a6435c159
 	github.com/robertkrimen/otto v0.0.0-20211024170158-b87d35c0b86f
 	github.com/spf13/cobra v1.5.0
@@ -15,6 +14,7 @@ require (
 
 require (
 	github.com/atotto/clipboard v0.1.4 // indirect
+	github.com/charmbracelet/lipgloss v0.5.0 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect

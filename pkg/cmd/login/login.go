@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/client"
+	"github.com/w-haibara/cuc/pkg/ui/jsonui"
 	"github.com/w-haibara/cuc/pkg/util"
-	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type LoginOptions struct {
@@ -32,10 +32,13 @@ func loginRun(opts LoginOptions, out, errOut io.Writer, jsonFlag bool) error {
 	c, err := newClient(ctx, out, errOut, jsonFlag)
 	if err != nil {
 		if jsonFlag {
-			jsonview.Render(out, map[string]string{
+			obj := map[string]string{
 				"status": "ng",
 				"error":  err.Error(),
-			})
+			}
+			if err := jsonui.NewJsonModel(obj).Render(); err != nil {
+				return err
+			}
 			return nil
 		}
 
@@ -43,7 +46,11 @@ func loginRun(opts LoginOptions, out, errOut io.Writer, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		jsonview.Render(out, map[string]string{"status": "ok"})
+		obj := map[string]string{"status": "ok"}
+		if err := jsonui.NewJsonModel(obj).Render(); err != nil {
+			return err
+		}
+
 		return nil
 	}
 

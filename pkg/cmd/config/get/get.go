@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/config"
+	"github.com/w-haibara/cuc/pkg/ui/jsonui"
 	"github.com/w-haibara/cuc/pkg/util"
-	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type GetOptions struct {
@@ -35,9 +35,13 @@ func getRun(opts GetOptions, out, errOut io.Writer, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		jsonview.Render(out, map[string]string{
+		obj := map[string]string{
 			opts.Key: val,
-		})
+		}
+		if err := jsonui.NewJsonModel(obj).Render(); err != nil {
+			return err
+		}
+
 		return nil
 	}
 

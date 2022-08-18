@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/w-haibara/cuc/pkg/config"
+	"github.com/w-haibara/cuc/pkg/ui/jsonui"
 	"github.com/w-haibara/cuc/pkg/util"
-	"github.com/w-haibara/cuc/pkg/view/jsonview"
 )
 
 type ListOptions struct {
@@ -29,7 +29,10 @@ func NewCmdConfigList(opts ListOptions) *cobra.Command {
 
 func listRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 	if jsonFlag {
-		jsonview.Render(out, config.Configs())
+		if err := jsonui.NewJsonModel(config.Configs()).Render(); err != nil {
+			return err
+		}
+
 		return nil
 	}
 
