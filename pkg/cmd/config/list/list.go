@@ -29,7 +29,7 @@ func NewCmdConfigList(opts ListOptions) *cobra.Command {
 
 func listRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 	if jsonFlag {
-		if err := jsonui.NewJsonModel(config.Configs()).Render(); err != nil {
+		if err := jsonui.NewModel(config.Configs()).Render(); err != nil {
 			return err
 		}
 

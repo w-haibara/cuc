@@ -36,7 +36,7 @@ func loginRun(opts LoginOptions, out, errOut io.Writer, jsonFlag bool) error {
 				"status": "ng",
 				"error":  err.Error(),
 			}
-			if err := jsonui.NewJsonModel(obj).Render(); err != nil {
+			if err := jsonui.NewModel(obj).Render(); err != nil {
 				return err
 			}
 			return nil
@@ -47,7 +47,7 @@ func loginRun(opts LoginOptions, out, errOut io.Writer, jsonFlag bool) error {
 
 	if jsonFlag {
 		obj := map[string]string{"status": "ok"}
-		if err := jsonui.NewJsonModel(obj).Render(); err != nil {
+		if err := jsonui.NewModel(obj).Render(); err != nil {
 			return err
 		}
 

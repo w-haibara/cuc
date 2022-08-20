@@ -43,7 +43,7 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 			return err
 		}
 
-		if err := jsonui.NewJsonModel(tasks).Render(); err != nil {
+		if err := jsonui.NewModel(tasks).Render(); err != nil {
 			return err
 		}
 

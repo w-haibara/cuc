@@ -42,7 +42,7 @@ func spaceRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		if err := jsonui.NewJsonModel(spaces).Render(); err != nil {
+		if err := jsonui.NewModel(spaces).Render(); err != nil {
 			return err
 		}
 

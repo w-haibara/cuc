@@ -9,27 +9,27 @@ import (
 	"github.com/w-haibara/cuc/pkg/ui"
 )
 
-type JsonModel struct {
+type Model struct {
 	Obj any
 }
 
-func NewJsonModel(obj any) JsonModel {
-	return JsonModel{obj}
+func NewModel(obj any) Model {
+	return Model{obj}
 }
 
-func (m JsonModel) Render() error {
+func (m Model) Render() error {
 	return ui.Render(m)
 }
 
-func (m JsonModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m JsonModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Quit
 }
 
-func (m JsonModel) View() string {
+func (m Model) View() string {
 	b, err := json.MarshalIndent(m.Obj, "", "  ")
 	if err != nil {
 		return heredoc.Docf(`

@@ -38,7 +38,7 @@ func getRun(opts GetOptions, out, errOut io.Writer, jsonFlag bool) error {
 		obj := map[string]string{
 			opts.Key: val,
 		}
-		if err := jsonui.NewJsonModel(obj).Render(); err != nil {
+		if err := jsonui.NewModel(obj).Render(); err != nil {
 			return err
 		}
 

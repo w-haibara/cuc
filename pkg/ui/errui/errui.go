@@ -7,26 +7,26 @@ import (
 	"github.com/w-haibara/cuc/pkg/ui"
 )
 
-type ErrModel struct {
+type Model struct {
 	err error
 }
 
-func NewErrModel(err error) ErrModel {
-	return ErrModel{err}
+func NewModel(err error) Model {
+	return Model{err}
 }
 
-func (m ErrModel) Render() error {
+func (m Model) Render() error {
 	return ui.Render(m)
 }
 
-func (m ErrModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m ErrModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Quit
 }
 
-func (m ErrModel) View() string {
+func (m Model) View() string {
 	return fmt.Sprintln("Error:", m.err.Error())
 }

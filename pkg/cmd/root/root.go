@@ -31,7 +31,7 @@ func (cmd *Command) ExecuteC() (*Command, error) {
 			obj := map[string]string{
 				"error": err.Error(),
 			}
-			if err := jsonui.NewJsonModel(obj).Render(); err != nil {
+			if err := jsonui.NewModel(obj).Render(); err != nil {
 				return cmd, err
 			}
 

@@ -51,7 +51,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		tea.Println("-->", msg.String())
 
 	case error:
-		return errui.NewErrModel(msg), cmd
+		return errui.NewModel(msg), cmd
 	}
 
 	return m, cmd

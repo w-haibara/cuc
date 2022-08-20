@@ -45,7 +45,7 @@ func listRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		if err := jsonui.NewJsonModel(folders).Render(); err != nil {
+		if err := jsonui.NewModel(folders).Render(); err != nil {
 			return err
 		}
 

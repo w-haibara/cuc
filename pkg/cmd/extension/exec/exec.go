@@ -50,7 +50,7 @@ func execRun(opts ExecOptions, out, errOut io.Writer, jsonFlag bool) error {
 		obj := map[string]any{
 			"result": v,
 		}
-		if err := jsonui.NewJsonModel(obj).Render(); err != nil {
+		if err := jsonui.NewModel(obj).Render(); err != nil {
 			return err
 		}
 	}

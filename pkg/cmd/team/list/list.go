@@ -35,7 +35,7 @@ func teamRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 	}
 
 	if jsonFlag {
-		if err := jsonui.NewJsonModel(client.Teams).Render(); err != nil {
+		if err := jsonui.NewModel(client.Teams).Render(); err != nil {
 			return err
 		}
 
