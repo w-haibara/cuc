@@ -60,7 +60,7 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 			return fmt.Errorf("there are no tasks")
 		}
 
-		items := listui.MakeListItems(len(tasks))
+		items := listui.MakeItems(len(tasks))
 		for _, task := range tasks {
 			customID := ""
 			if task.CustomID != "" {
@@ -77,13 +77,13 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 			)
 		}
 
-		return listui.NewListMsg(
+		return listui.NewMsg(
 			fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name),
 			*items,
 		)
 	}
 
-	if err := listui.NewListModel("Tasks in ...", fn).Render(); err != nil {
+	if err := listui.NewModel("Tasks in ...", fn).Render(); err != nil {
 		return err
 	}
 

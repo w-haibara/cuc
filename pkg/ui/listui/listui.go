@@ -7,13 +7,13 @@ import (
 	"github.com/w-haibara/cuc/pkg/ui/errui"
 )
 
-type ListModel struct {
+type Model struct {
 	List list.Model
 	Cmd  func() tea.Msg
 }
 
-func NewListModel(title string, cmd func() tea.Msg) ListModel {
-	m := ListModel{
+func NewModel(title string, cmd func() tea.Msg) Model {
+	m := Model{
 		List: list.New(nil, list.NewDefaultDelegate(), 1, 1),
 		Cmd:  cmd,
 	}
@@ -22,18 +22,18 @@ func NewListModel(title string, cmd func() tea.Msg) ListModel {
 	return m
 }
 
-func (m ListModel) Render() error {
+func (m Model) Render() error {
 	return ui.Render(m)
 }
 
-func (m ListModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		m.Cmd,
 		m.List.StartSpinner(),
 	)
 }
 
-func (m ListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.List, cmd = m.List.Update(msg)
 
@@ -41,10 +41,14 @@ func (m ListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.List.SetSize(msg.Width, msg.Height)
 
-	case ListMsg:
+	case Msg:
 		m.List.StopSpinner()
-		m.List.Title = msg.Title
 		m.List.SetItems(msg.Items)
+		m.List.Title = msg.Title
+		m.List.Filter = m.filter
+
+	case tea.KeyMsg:
+		tea.Println("-->", msg.String())
 
 	case error:
 		return errui.NewErrModel(msg), cmd
@@ -53,36 +57,43 @@ func (m ListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m ListModel) View() string {
+func (m Model) View() string {
 	return m.List.View()
 }
 
-type ListMsg struct {
+func (m Model) filter(term string, targets []string) []list.Rank {
+	return list.DefaultFilter(term, targets)
+}
+
+type Msg struct {
 	Title string
 	Items []list.Item
 }
 
-func NewListMsg(title string, items []list.Item) ListMsg {
-	return ListMsg{
+func NewMsg(title string, items []list.Item) Msg {
+	return Msg{
 		Title: title,
 		Items: items,
 	}
 }
 
-type ListItem struct {
-	Title_ string
-	Desc   string
+type Item struct {
+	title string
+	desc  string
 }
 
-func MakeListItems(size int) *[]list.Item {
+func MakeItems(size int) *[]list.Item {
 	items := make([]list.Item, 0, size)
 	return &items
 }
 
 func AppendItem(items *[]list.Item, title, desc string) {
-	*items = append(*items, ListItem{title, desc})
+	*items = append(*items, Item{
+		title: title,
+		desc:  desc,
+	})
 }
 
-func (item ListItem) Title() string       { return item.Title_ }
-func (item ListItem) Description() string { return item.Desc }
-func (item ListItem) FilterValue() string { return item.Title_ }
+func (item Item) Title() string       { return item.title }
+func (item Item) Description() string { return item.desc }
+func (item Item) FilterValue() string { return item.title }
