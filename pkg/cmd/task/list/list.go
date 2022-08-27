@@ -12,6 +12,7 @@ import (
 	"github.com/w-haibara/cuc/pkg/client"
 	"github.com/w-haibara/cuc/pkg/ui/jsonui"
 	"github.com/w-haibara/cuc/pkg/ui/listui"
+	"github.com/w-haibara/cuc/pkg/ui/message"
 	"github.com/w-haibara/cuc/pkg/util"
 )
 
@@ -60,7 +61,14 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 			return fmt.Errorf("there are no tasks")
 		}
 
-		items := listui.MakeItems(len(tasks))
+		const (
+			titleKey = "Title"
+			idKey    = "ID"
+		)
+		items, details := listui.MakeItems(
+			len(tasks),
+			[]string{titleKey, idKey},
+		)
 		for _, task := range tasks {
 			customID := ""
 			if task.CustomID != "" {
@@ -75,12 +83,21 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 				customID+task.Name,
 				strings.Join([]string{status, points}, " "),
 			)
+
+			listui.AppendDetail(
+				details,
+				map[string]string{
+					titleKey: task.Name,
+					idKey:    task.ID,
+				},
+			)
 		}
 
-		return listui.NewMsg(
-			fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name),
-			*items,
-		)
+		return message.InitListMsg{
+			Title:       fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name),
+			Items:       *items,
+			ItemDetails: *details,
+		}
 	}
 
 	if err := listui.NewModel("Tasks in ...", fn).Render(); err != nil {

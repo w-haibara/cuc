@@ -4,12 +4,18 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/w-haibara/cuc/pkg/ui"
+	"github.com/w-haibara/cuc/pkg/ui/dialogui"
 	"github.com/w-haibara/cuc/pkg/ui/errui"
+	"github.com/w-haibara/cuc/pkg/ui/message"
 )
 
 type Model struct {
 	List list.Model
 	Cmd  func() tea.Msg
+
+	state state
+
+	dialog dialogui.Model
 }
 
 func NewModel(title string, cmd func() tea.Msg) Model {
@@ -35,29 +41,67 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.List, cmd = m.List.Update(msg)
 
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.List.SetSize(msg.Width, msg.Height)
-
-	case Msg:
-		m.List.StopSpinner()
-		m.List.SetItems(msg.Items)
-		m.List.Title = msg.Title
-		m.List.Filter = m.filter
-
 	case tea.KeyMsg:
-		tea.Println("-->", msg.String())
-
-	case error:
-		return errui.NewModel(msg), cmd
+		switch msg.String() {
+		case "ctrl+c":
+			return m, tea.Quit
+		}
 	}
 
-	return m, cmd
+	switch msg := msg.(type) {
+	case message.ShowListMsg:
+		m.state = defaultState
+
+	case error:
+		return errui.NewModel(msg), nil
+	}
+
+	switch m.state {
+	case defaultState:
+		m.List, cmd = m.List.Update(msg)
+		switch msg := msg.(type) {
+		case tea.WindowSizeMsg:
+			m.List.SetSize(msg.Width, msg.Height)
+
+		case message.InitListMsg:
+			m.List.StopSpinner()
+			m.List.SetItems(msg.Items)
+			m.List.Title = msg.Title
+			m.List.Filter = m.filter
+
+			m.dialog.SetData(msg.ItemDetails.Keys, *msg.ItemDetails.Data)
+
+		case tea.KeyMsg:
+			if msg.String() == "enter" {
+				m.state = showItemDetailState
+				if err := m.dialog.SetIndex(m.List.Index()); err != nil {
+					return errui.NewModel(err), nil
+				}
+				m.dialog, cmd = m.dialog.Update(msg)
+				return m, cmd
+			}
+		}
+
+		return m, cmd
+
+	case showItemDetailState:
+		m.dialog, cmd = m.dialog.Update(msg)
+
+		return m, cmd
+
+	default:
+		return m, nil
+	}
 }
 
 func (m Model) View() string {
+	switch m.state {
+	case showItemDetailState:
+		return m.dialog.View()
+	}
+
 	return m.List.View()
 }
 
@@ -65,26 +109,28 @@ func (m Model) filter(term string, targets []string) []list.Rank {
 	return list.DefaultFilter(term, targets)
 }
 
-type Msg struct {
-	Title string
-	Items []list.Item
-}
+type state int
 
-func NewMsg(title string, items []list.Item) Msg {
-	return Msg{
-		Title: title,
-		Items: items,
-	}
-}
+const (
+	defaultState state = iota
+	showItemDetailState
+)
 
 type Item struct {
 	title string
 	desc  string
 }
 
-func MakeItems(size int) *[]list.Item {
+func MakeItems(size int, keys []string) (*[]list.Item, *message.ItemDetails) {
 	items := make([]list.Item, 0, size)
-	return &items
+
+	data := make([]map[string]string, 0, size)
+	details := message.ItemDetails{
+		Keys: keys,
+		Data: &data,
+	}
+
+	return &items, &details
 }
 
 func AppendItem(items *[]list.Item, title, desc string) {
@@ -92,6 +138,10 @@ func AppendItem(items *[]list.Item, title, desc string) {
 		title: title,
 		desc:  desc,
 	})
+}
+
+func AppendDetail(details *message.ItemDetails, detail map[string]string) {
+	*details.Data = append(*details.Data, detail)
 }
 
 func (item Item) Title() string       { return item.title }
