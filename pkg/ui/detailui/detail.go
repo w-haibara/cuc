@@ -4,17 +4,26 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/glamour"
 	"github.com/w-haibara/cuc/pkg/ui/message"
 )
 
 type Model struct {
-	Keys  []string
+	Title string
+	Desc  string
 	Data  []map[string]string
 	Index int
 }
 
-func (m *Model) SetData(keys []string, data []map[string]string) {
-	m.Keys = keys
+func (m *Model) SetTitle(title string) {
+	m.Title = title
+}
+
+func (m *Model) SetDesc(desc string) {
+	m.Desc = desc
+}
+
+func (m *Model) SetData(data []map[string]string) {
 	m.Data = data
 }
 
@@ -47,11 +56,25 @@ func (m Model) showListCmd() tea.Msg {
 }
 
 func (m Model) View() string {
-	str := ""
+	in := ""
 
-	for _, key := range m.Keys {
-		str += fmt.Sprintf("%s: %s\n", key, m.Data[m.Index][key])
+	if m.Title != "" {
+		in += fmt.Sprintln("#", m.Title)
 	}
 
-	return str
+	if m.Desc != "" {
+		in += m.Desc + "\n"
+	}
+
+	in += "| Key | Value |\n| --- | --- |\n"
+	for k, v := range m.Data[m.Index] {
+		in += fmt.Sprintf("| %s | %s |\n", k, v)
+	}
+
+	out, err := glamour.Render(in, "dark")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return out
 }

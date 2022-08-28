@@ -61,34 +61,37 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 			return fmt.Errorf("there are no tasks")
 		}
 
-		const (
-			titleKey = "Title"
-			idKey    = "ID"
-		)
-		items, details := listui.MakeItems(
-			len(tasks),
-			[]string{titleKey, idKey},
-		)
+		items, details := listui.MakeItems(len(tasks))
 		for _, task := range tasks {
 			customID := ""
 			if task.CustomID != "" {
 				customID = fmt.Sprintf("[%s] ", task.CustomID)
 			}
 
-			status := task.Status.Status
-			points := fmt.Sprintf("%d points", task.Points)
+			status := fmt.Sprintf("[%s]", strings.ToUpper(task.Status.Status))
+			assignees := func() string {
+				names := make([]string, len(task.Assignees))
+				for i, assignee := range task.Assignees {
+					names[i] = assignee.Username
+				}
+				return "[" + strings.Join(names, " ") + "]"
+			}()
+			priority := fmt.Sprintf("[%s]", task.Priority.Priority)
+			points := fmt.Sprintf("[%d points]", task.Points)
+			id := fmt.Sprintf("[ID:%s]", task.ID)
 
 			listui.AppendItem(
 				items,
 				customID+task.Name,
-				strings.Join([]string{status, points}, " "),
+				util.StringsJoin([]string{status, assignees, priority, points, id}, " ", "[]"),
 			)
 
 			listui.AppendDetail(
 				details,
 				map[string]string{
-					titleKey: task.Name,
-					idKey:    task.ID,
+					"Create At": task.DateCreated,
+					"Due Date":  task.DueDate,
+					"Content":   task.TextContent,
 				},
 			)
 		}

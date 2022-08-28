@@ -71,7 +71,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.List.Title = msg.Title
 			m.List.Filter = m.filter
 
-			m.detail.SetData(msg.ItemDetails.Keys, *msg.ItemDetails.Data)
+			m.detail.SetData(*msg.ItemDetails.Data)
 
 		case tea.KeyMsg:
 			if msg.String() == "enter" {
@@ -79,6 +79,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err := m.detail.SetIndex(m.List.Index()); err != nil {
 					return errui.NewModel(err), nil
 				}
+
+				switch item := m.List.SelectedItem().(type) {
+				case Item:
+					m.detail.SetTitle(item.title)
+					m.detail.SetDesc(item.desc)
+				}
+
 				m.detail, cmd = m.detail.Update(msg)
 				return m, cmd
 			}
@@ -121,12 +128,11 @@ type Item struct {
 	desc  string
 }
 
-func MakeItems(size int, keys []string) (*[]list.Item, *message.ItemDetails) {
+func MakeItems(size int) (*[]list.Item, *message.ItemDetails) {
 	items := make([]list.Item, 0, size)
 
 	data := make([]map[string]string, 0, size)
 	details := message.ItemDetails{
-		Keys: keys,
 		Data: &data,
 	}
 
