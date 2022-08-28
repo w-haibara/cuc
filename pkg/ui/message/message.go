@@ -3,18 +3,18 @@ package message
 import "github.com/charmbracelet/bubbles/list"
 
 type InitListMsg struct {
-	Title       string
-	Items       []list.Item
-	ItemDetails ItemDetails
+	Title    string
+	Items    []list.Item
+	RowItems []any
 }
 
-type ItemDetails struct {
-	Keys []string
-	Data *[]map[string]string
+type InitDetailMsg struct {
+	Data any
 }
 
 type ShowListMsg struct {
 }
 
 type ShowItemDetailMsg struct {
+	MD string
 }

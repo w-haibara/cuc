@@ -11,6 +11,7 @@ require (
 	github.com/raksul/go-clickup v0.0.0-20220730071535-2c2a6435c159
 	github.com/robertkrimen/otto v0.0.0-20211024170158-b87d35c0b86f
 	github.com/spf13/cobra v1.5.0
+	github.com/w-haibara/markdown-builder v0.0.0-20220828150143-346d91eeffc9
 )
 
 require (

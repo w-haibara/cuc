@@ -4,24 +4,27 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/w-haibara/cuc/pkg/ui"
-	"github.com/w-haibara/cuc/pkg/ui/detailui"
 	"github.com/w-haibara/cuc/pkg/ui/errui"
+	"github.com/w-haibara/cuc/pkg/ui/mdui"
 	"github.com/w-haibara/cuc/pkg/ui/message"
 )
 
 type Model struct {
+	RowItems []any
+
 	List list.Model
 	Cmd  func() tea.Msg
 
 	state state
 
-	detail detailui.Model
+	detail mdui.Model
 }
 
-func NewModel(title string, cmd func() tea.Msg) Model {
+func NewModel(title string, listCmd func() tea.Msg, detailCmd func(data any) tea.Cmd) Model {
 	m := Model{
-		List: list.New(nil, list.NewDefaultDelegate(), 1, 1),
-		Cmd:  cmd,
+		List:   list.New(nil, list.NewDefaultDelegate(), 1, 1),
+		Cmd:    listCmd,
+		detail: mdui.NewModel(detailCmd),
 	}
 	m.List.Title = title
 	m.List.StartSpinner()
@@ -60,6 +63,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.state {
 	case defaultState:
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			if msg.String() == "enter" {
+				detailEnabled := func() bool {
+					if m.List.SelectedItem() == nil {
+						return false
+					}
+
+					switch m.List.FilterState() {
+					case list.Unfiltered:
+						return true
+					case list.Filtering:
+						return false
+					case list.FilterApplied:
+						return true
+					default:
+						return true
+					}
+				}()
+				if detailEnabled {
+					m.state = showItemDetailState
+					return m, func() tea.Msg {
+						return message.InitDetailMsg{
+							Data: m.RowItems[m.List.Index()],
+						}
+					}
+				}
+			}
+		}
+
 		m.List, cmd = m.List.Update(msg)
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
@@ -70,25 +103,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.List.SetItems(msg.Items)
 			m.List.Title = msg.Title
 			m.List.Filter = m.filter
-
-			m.detail.SetData(*msg.ItemDetails.Data)
-
-		case tea.KeyMsg:
-			if msg.String() == "enter" {
-				m.state = showItemDetailState
-				if err := m.detail.SetIndex(m.List.Index()); err != nil {
-					return errui.NewModel(err), nil
-				}
-
-				switch item := m.List.SelectedItem().(type) {
-				case Item:
-					m.detail.SetTitle(item.title)
-					m.detail.SetDesc(item.desc)
-				}
-
-				m.detail, cmd = m.detail.Update(msg)
-				return m, cmd
-			}
+			m.RowItems = msg.RowItems
 		}
 
 		return m, cmd
@@ -128,15 +143,9 @@ type Item struct {
 	desc  string
 }
 
-func MakeItems(size int) (*[]list.Item, *message.ItemDetails) {
+func MakeItems(size int) *[]list.Item {
 	items := make([]list.Item, 0, size)
-
-	data := make([]map[string]string, 0, size)
-	details := message.ItemDetails{
-		Data: &data,
-	}
-
-	return &items, &details
+	return &items
 }
 
 func AppendItem(items *[]list.Item, title, desc string) {
@@ -144,10 +153,6 @@ func AppendItem(items *[]list.Item, title, desc string) {
 		title: title,
 		desc:  desc,
 	})
-}
-
-func AppendDetail(details *message.ItemDetails, detail map[string]string) {
-	*details.Data = append(*details.Data, detail)
 }
 
 func (item Item) Title() string       { return item.title }

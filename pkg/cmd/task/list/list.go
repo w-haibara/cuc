@@ -14,6 +14,7 @@ import (
 	"github.com/w-haibara/cuc/pkg/ui/listui"
 	"github.com/w-haibara/cuc/pkg/ui/message"
 	"github.com/w-haibara/cuc/pkg/util"
+	md "github.com/w-haibara/markdown-builder/markdown"
 )
 
 type ListOptions struct {
@@ -51,7 +52,20 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 		return nil
 	}
 
-	fn := func() tea.Msg {
+	ui := listui.NewModel(
+		"Tasks in ...",
+		listuiCmd(opts),
+		detailuiCmd(opts),
+	)
+	if err := ui.Render(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func listuiCmd(opts ListOptions) tea.Cmd {
+	return func() tea.Msg {
 		tasks, err := getTasks(opts)
 		if err != nil {
 			return err
@@ -61,53 +75,62 @@ func taskRun(opts ListOptions, out, errOut io.Writer, jsonFlag bool) error {
 			return fmt.Errorf("there are no tasks")
 		}
 
-		items, details := listui.MakeItems(len(tasks))
-		for _, task := range tasks {
-			customID := ""
-			if task.CustomID != "" {
-				customID = fmt.Sprintf("[%s] ", task.CustomID)
-			}
+		rowTasks := make([]any, len(tasks))
+		for i, task := range tasks {
+			rowTasks[i] = task
+		}
 
-			status := fmt.Sprintf("[%s]", strings.ToUpper(task.Status.Status))
+		items := listui.MakeItems(len(tasks))
+		for _, task := range tasks {
+			listui.AppendItem(items, taskTitle(task), taskDesc(task))
+		}
+
+		return message.InitListMsg{
+			Title:    fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name),
+			Items:    *items,
+			RowItems: rowTasks,
+		}
+	}
+}
+
+func detailuiCmd(opts ListOptions) func(data any) tea.Cmd {
+	return func(data any) tea.Cmd {
+		task, ok := data.(clickup.Task)
+		if !ok {
+			panic("invalid type")
+		}
+
+		return func() tea.Msg {
 			assignees := func() string {
 				names := make([]string, len(task.Assignees))
 				for i, assignee := range task.Assignees {
 					names[i] = assignee.Username
 				}
-				return "[" + strings.Join(names, " ") + "]"
+				return strings.Join(names, ", ")
 			}()
-			priority := fmt.Sprintf("[%s]", task.Priority.Priority)
-			points := fmt.Sprintf("[%d points]", task.Points)
-			id := fmt.Sprintf("[ID:%s]", task.ID)
 
-			listui.AppendItem(
-				items,
-				customID+task.Name,
-				util.StringsJoin([]string{status, assignees, priority, points, id}, " ", "[]"),
+			m := md.NewMarkdown()
+			m.Write(
+				md.MustHeading(taskTitle(task), 1),
+				md.Br(),
+				md.RootList(
+					strings.ToUpper(task.Status.Status),
+					fmt.Sprintf("%d points", task.Points),
+					"Addignees: "+assignees,
+					"Priority: "+task.Priority.Priority,
+					"Create At: "+task.DateCreated,
+					"Due Date: "+task.DueDate,
+					"ID: "+task.ID,
+				),
+				md.Br(),
+				task.TextContent,
 			)
 
-			listui.AppendDetail(
-				details,
-				map[string]string{
-					"Create At": task.DateCreated,
-					"Due Date":  task.DueDate,
-					"Content":   task.TextContent,
-				},
-			)
-		}
-
-		return message.InitListMsg{
-			Title:       fmt.Sprintf("Tasks in [%s]", tasks[0].List.Name),
-			Items:       *items,
-			ItemDetails: *details,
+			return message.ShowItemDetailMsg{
+				MD: m.Render(),
+			}
 		}
 	}
-
-	if err := listui.NewModel("Tasks in ...", fn).Render(); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func getTasks(opts ListOptions) ([]clickup.Task, error) {
@@ -126,4 +149,29 @@ func getTasks(opts ListOptions) ([]clickup.Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func taskTitle(task clickup.Task) string {
+	customID := ""
+	if task.CustomID != "" {
+		customID = fmt.Sprintf("[%s] ", task.CustomID)
+	}
+
+	return customID + task.Name
+}
+
+func taskDesc(task clickup.Task) string {
+	status := fmt.Sprintf("[%s]", strings.ToUpper(task.Status.Status))
+	assignees := func() string {
+		names := make([]string, len(task.Assignees))
+		for i, assignee := range task.Assignees {
+			names[i] = assignee.Username
+		}
+		return "[" + strings.Join(names, " ") + "]"
+	}()
+	priority := fmt.Sprintf("[%s]", task.Priority.Priority)
+	points := fmt.Sprintf("[%d points]", task.Points)
+	id := fmt.Sprintf("[ID:%s]", task.ID)
+
+	return util.StringsJoin([]string{status, assignees, priority, points, id}, " ", "[]")
 }
