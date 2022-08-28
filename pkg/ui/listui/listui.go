@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/w-haibara/cuc/pkg/ui"
-	"github.com/w-haibara/cuc/pkg/ui/dialogui"
+	"github.com/w-haibara/cuc/pkg/ui/detailui"
 	"github.com/w-haibara/cuc/pkg/ui/errui"
 	"github.com/w-haibara/cuc/pkg/ui/message"
 )
@@ -15,7 +15,7 @@ type Model struct {
 
 	state state
 
-	dialog dialogui.Model
+	detail detailui.Model
 }
 
 func NewModel(title string, cmd func() tea.Msg) Model {
@@ -71,15 +71,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.List.Title = msg.Title
 			m.List.Filter = m.filter
 
-			m.dialog.SetData(msg.ItemDetails.Keys, *msg.ItemDetails.Data)
+			m.detail.SetData(msg.ItemDetails.Keys, *msg.ItemDetails.Data)
 
 		case tea.KeyMsg:
 			if msg.String() == "enter" {
 				m.state = showItemDetailState
-				if err := m.dialog.SetIndex(m.List.Index()); err != nil {
+				if err := m.detail.SetIndex(m.List.Index()); err != nil {
 					return errui.NewModel(err), nil
 				}
-				m.dialog, cmd = m.dialog.Update(msg)
+				m.detail, cmd = m.detail.Update(msg)
 				return m, cmd
 			}
 		}
@@ -87,7 +87,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 
 	case showItemDetailState:
-		m.dialog, cmd = m.dialog.Update(msg)
+		m.detail, cmd = m.detail.Update(msg)
 
 		return m, cmd
 
@@ -99,7 +99,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	switch m.state {
 	case showItemDetailState:
-		return m.dialog.View()
+		return m.detail.View()
 	}
 
 	return m.List.View()
