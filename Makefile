@@ -1,0 +1,6 @@
+.PHONY: build
+build:
+	go mod tidy
+	go fmt ./...
+	go vet ./...
+	go build ./cmd/cuc
